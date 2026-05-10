@@ -34,8 +34,12 @@ app.post('/api/register', (req, res) => {
     password,
     balance: 0,
     referralCode: myRefCode,
-    referrersCount: 0,
+    validReferralsCount: 0,
+    pendingReferralsCount: 0,
+    invitedBy: null,
+    hasDeposited: false,
     rank: 'Starter',
+    baseReferralReward: 200,
     pendingRewards: 0
   };
   
@@ -45,14 +49,9 @@ app.post('/api/register', (req, res) => {
   if (referrerCode && db.referralLinks[referrerCode]) {
     const inviterPhone = db.referralLinks[referrerCode];
     if (db.users[inviterPhone]) {
-      db.users[inviterPhone].referrersCount += 1;
-      db.users[inviterPhone].balance += 50; // Give 50 ETB per invite
-      
-      // Update Rank
-      const refs = db.users[inviterPhone].referrersCount;
-      if (refs >= 5) db.users[inviterPhone].rank = 'VIP Bronze';
-      if (refs >= 20) db.users[inviterPhone].rank = 'VIP Silver';
-      if (refs >= 50) db.users[inviterPhone].rank = 'VIP Gold';
+      db.users[inviterPhone].pendingReferralsCount += 1;
+      db.users[inviterPhone].pendingRewards += 200; // Show potential 200 ETB
+      db.users[phone].invitedBy = inviterPhone;
     }
   }
 
@@ -85,10 +84,41 @@ app.post('/api/deposit', (req, res) => {
   if (match) {
     const amount = parseFloat(match[1]);
     user.balance += amount;
+    
+    // Process Valid Referral Reward
+    if (!user.hasDeposited) {
+      user.hasDeposited = true;
+      if (user.invitedBy && db.users[user.invitedBy]) {
+        const inviter = db.users[user.invitedBy];
+        inviter.pendingReferralsCount = Math.max(0, inviter.pendingReferralsCount - 1);
+        inviter.pendingRewards = Math.max(0, inviter.pendingRewards - inviter.baseReferralReward);
+        inviter.validReferralsCount += 1;
+        inviter.balance += inviter.baseReferralReward; // Dynamic reward based on rank
+      }
+    }
+    
     return res.json({ success: true, amount, balance: user.balance });
   } else {
     return res.status(400).json({ success: false, message: 'Verification failed. Invalid transaction message or wrong recipient.' });
   }
+});
+
+// API: Upgrade VIP
+app.post('/api/upgrade', (req, res) => {
+  const { phone, tierName, price, newReward } = req.body;
+  const user = db.users[phone];
+  
+  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+  
+  if (user.balance < price) {
+    return res.status(400).json({ success: false, message: 'Insufficient balance. Please deposit more funds.' });
+  }
+  
+  user.balance -= price;
+  user.rank = tierName;
+  user.baseReferralReward = newReward;
+  
+  res.json({ success: true, user });
 });
 
 // Fallback to index.html for SPA routing

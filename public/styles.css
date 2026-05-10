@@ -44,12 +44,18 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Utilities */
 .container {
-  max-width: 480px; /* Mobile first */
+  max-width: 1200px; /* Desktop width */
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 24px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.auth-card-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .text-center { text-align: center; }
@@ -163,7 +169,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0 20px 0;
+  padding: 20px 0 30px 0;
 }
 
 .logo-text {
@@ -214,6 +220,9 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.5s ease-out;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .lang-card {
@@ -600,8 +609,6 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-around;
   padding: 16px 0;
   z-index: 100;
-  max-width: 480px;
-  margin: 0 auto;
 }
 
 .nav-item {
@@ -612,7 +619,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 4px;
   font-size: 11px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, background 0.2s;
 }
 
 .nav-item.active { color: var(--eth-green); }
@@ -620,3 +627,145 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Dashboard spacer for bottom nav */
 .dashboard-content { padding-bottom: 80px; }
+
+/* Desktop Grid and Nav */
+@media (min-width: 768px) {
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    align-items: start;
+  }
+  
+  .bottom-nav {
+    display: none; /* Hide bottom nav on desktop */
+  }
+  
+  .desktop-nav {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 8px 24px;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+  }
+  
+  .desktop-nav .nav-item {
+    flex-direction: row;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 12px;
+  }
+  
+  .desktop-nav .nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+  }
+
+  .desktop-nav .nav-item.active {
+    background: rgba(0, 154, 68, 0.1);
+  }
+  
+  .dashboard-content { padding-bottom: 40px; }
+  
+  .deposit-container {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-nav {
+    display: none; /* Hide desktop nav on mobile */
+  }
+}
+
+/* VIP Dashboard */
+.vip-container {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.vip-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (min-width: 768px) {
+  .vip-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+.vip-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.vip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.vip-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+}
+
+.vip-card.silver::before { background: linear-gradient(180deg, #E0E0E0, #9E9E9E); }
+.vip-card.golden::before { background: linear-gradient(180deg, #FFD700, #FFA500); }
+.vip-card.platinum::before { background: linear-gradient(180deg, #E5E4E2, #8A9A5B); }
+.vip-card.diamond::before { background: linear-gradient(180deg, #00FFFF, #8A2BE2); }
+
+.vip-card.silver { border-color: rgba(224, 224, 224, 0.2); }
+.vip-card.golden { border-color: rgba(255, 215, 0, 0.2); }
+.vip-card.platinum { border-color: rgba(229, 228, 226, 0.2); }
+.vip-card.diamond { border-color: rgba(0, 255, 255, 0.2); }
+
+.vip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.vip-title { font-size: 20px; font-weight: 800; font-family: 'Outfit', sans-serif; }
+.vip-price { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.vip-price span { font-size: 12px; color: var(--text-secondary); font-weight: normal; }
+
+.vip-benefits {
+  list-style: none;
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.vip-benefits li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vip-benefits li::before {
+  content: '✓';
+  color: var(--eth-green);
+  font-weight: bold;
+}

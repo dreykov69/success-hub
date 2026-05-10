@@ -33,7 +33,21 @@ const translations = {
     successAlert: "Success!",
     errorAlert: "Error!",
     logout: "Logout",
-    referralLinkGen: "Your Unique Invite Link:"
+    referralLinkGen: "Your Unique Invite Link:",
+    validReferrals: "Valid Referrals",
+    howItWorks: "How It Works & Rules",
+    rule1: "1. Share your unique link.",
+    rule2: "2. Your friend registers & makes a deposit.",
+    rule3: "3. You receive 200 ETB for each valid referral!",
+    vipPlans: "VIP Plans",
+    insufficientBalance: "Insufficient balance! Redirecting to deposit...",
+    upgradeSuccess: "Upgrade successful! Welcome to",
+    currentPlan: "Current Plan",
+    upgradeBtn: "Upgrade Now",
+    earnPerRef1: "Earn ",
+    earnPerRef2: " ETB per valid referral",
+    prioritySupport: "Priority customer support",
+    fastWithdrawal: "Faster withdrawal processing"
   },
   om: {
     selectLanguage: "Afaan Filadhu",
@@ -67,7 +81,21 @@ const translations = {
     successAlert: "Milkaa'eera!",
     errorAlert: "Dogoggora!",
     logout: "Bahi",
-    referralLinkGen: "Liinkii Affeerrii Kee:"
+    referralLinkGen: "Liinkii Affeerrii Kee:",
+    validReferrals: "Affeerrii Mirkanaa'an",
+    howItWorks: "Akkaataa Itti Hojjetu fi Seerota",
+    rule1: "1. Liinkii kee qoodi.",
+    rule2: "2. Hiriyyaan kee galmaa'ee maallaqa galcha.",
+    rule3: "3. Affeerrii mirkanaa'e tokkoof 200 ETB argatta!",
+    vipPlans: "Karoora VIP",
+    insufficientBalance: "Hafteen hin ga'u! Gara galchutti qajeelchaa jira...",
+    upgradeSuccess: "Fooyya'iinsi milkaa'eera! Baga nagaan gara",
+    currentPlan: "Karoora Ammaa",
+    upgradeBtn: "Amma Fooyyessi",
+    earnPerRef1: "Affeerrii mirkanaa'e tokkoof ETB ",
+    earnPerRef2: " argadhu",
+    prioritySupport: "Dursa deeggarsa maamilaa",
+    fastWithdrawal: "Adeemsa baasii saffisaa"
   },
   am: {
     selectLanguage: "ቋንቋ ይምረጡ",
@@ -101,7 +129,21 @@ const translations = {
     successAlert: "ተሳክቷል!",
     errorAlert: "ስህተት!",
     logout: "ውጣ",
-    referralLinkGen: "የእርስዎ መጋበዣ ሊንክ፦"
+    referralLinkGen: "የእርስዎ መጋበዣ ሊንክ፦",
+    validReferrals: "ትክክለኛ ግብዣዎች",
+    howItWorks: "እንዴት እንደሚሰራ እና ህጎች",
+    rule1: "1. መጋበዣ ሊንክዎን ያጋሩ።",
+    rule2: "2. ጓደኛዎ ይመዘገባል እና ገንዘብ ያስገባል።",
+    rule3: "3. ለእያንዳንዱ ትክክለኛ ግብዣ 200 ETB ያገኛሉ!",
+    vipPlans: "የ VIP እቅዶች",
+    insufficientBalance: "ቀሪ ሂሳብዎ አነስተኛ ነው! ወደ ክፍያ ገጽ እየመራ ነው...",
+    upgradeSuccess: "ማሻሻያው ተሳክቷል! እንኳን ደህና መጡ ወደ",
+    currentPlan: "የአሁኑ እቅድ",
+    upgradeBtn: "አሁን አሻሽል",
+    earnPerRef1: "ለእያንዳንዱ ትክክለኛ ግብዣ ",
+    earnPerRef2: " ETB ያግኙ",
+    prioritySupport: "ልዩ የደንበኞች ድጋፍ",
+    fastWithdrawal: "ፈጣን የገንዘብ ወጪ ሂደት"
   }
 };
 
@@ -118,6 +160,7 @@ function App() {
   const [page, setPage] = useState('lang_select'); // lang_select, auth, dashboard, deposit, verification
   const [user, setUser] = useState(null);
   const [referralParam, setReferralParam] = useState('');
+  const [pendingUpgrade, setPendingUpgrade] = useState(null);
 
   const t = useMemo(() => lang ? translations[lang] : translations.en, [lang]);
 
@@ -136,6 +179,28 @@ function App() {
   const TopNav = () => (
     <div className="top-nav">
       <div className="logo-text">Milkii<span className="logo-accent">Hub</span></div>
+      
+      {page !== 'lang_select' && page !== 'auth' && page !== 'verification' && (
+        <div className="desktop-nav">
+          <div className={`nav-item ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>
+            <div className="nav-icon">📊</div>
+            <span>{t.dashboard}</span>
+          </div>
+          <div className={`nav-item ${page === 'deposit' ? 'active' : ''}`} onClick={() => setPage('deposit')}>
+            <div className="nav-icon">💰</div>
+            <span>{t.deposit}</span>
+          </div>
+          <div className={`nav-item ${page === 'vip' ? 'active' : ''}`} onClick={() => setPage('vip')}>
+            <div className="nav-icon">👑</div>
+            <span>{t.vipPlans}</span>
+          </div>
+          <div className="nav-item" onClick={() => { setUser(null); setPage('auth'); }}>
+            <div className="nav-icon">🚪</div>
+            <span>{t.logout}</span>
+          </div>
+        </div>
+      )}
+
       <div className="lang-switch">
         <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
         <button className={`lang-btn ${lang === 'om' ? 'active' : ''}`} onClick={() => setLang('om')}>OM</button>
@@ -153,6 +218,10 @@ function App() {
       <div className={`nav-item ${page === 'deposit' ? 'active' : ''}`} onClick={() => setPage('deposit')}>
         <div className="nav-icon">💰</div>
         <span>{t.deposit}</span>
+      </div>
+      <div className={`nav-item ${page === 'vip' ? 'active' : ''}`} onClick={() => setPage('vip')}>
+        <div className="nav-icon">👑</div>
+        <span>{t.vipPlans || 'VIP'}</span>
       </div>
       <div className="nav-item" onClick={() => { setUser(null); setPage('auth'); }}>
         <div className="nav-icon">🚪</div>
@@ -202,8 +271,9 @@ function App() {
   return (
     <div className="container dashboard-content">
       <TopNav />
-      {page === 'dashboard' && <Dashboard t={t} user={user} />}
-      {page === 'deposit' && <DepositScreen t={t} lang={lang} user={user} setUser={setUser} setPage={setPage} />}
+      {page === 'dashboard' && <Dashboard t={t} user={user} setPage={setPage} />}
+      {page === 'deposit' && <DepositScreen t={t} lang={lang} user={user} setUser={setUser} setPage={setPage} pendingUpgrade={pendingUpgrade} setPendingUpgrade={setPendingUpgrade} />}
+      {page === 'vip' && <VipScreen t={t} user={user} setUser={setUser} setPage={setPage} setPendingUpgrade={setPendingUpgrade} />}
       <BottomNav />
     </div>
   );
@@ -238,9 +308,10 @@ function AuthScreen({ t, lang, TopNav, setUser, setPage, referralParam }) {
     } catch (err) {
       // Offline Mock Mode for demonstration
       if (isLogin) {
-        setUser({ fullName: "Demo User", phone: form.phone, balance: 1200, referrersCount: 3, rank: 'Starter', referralCode: 'MILKIIX99', pendingRewards: 450 });
+        setUser({ fullName: "Demo User", phone: form.phone, balance: 1200, validReferralsCount: 4, pendingReferralsCount: 2, rank: 'Starter', referralCode: 'MILKIIX99', pendingRewards: 400, hasDeposited: true, baseReferralReward: 200 });
       } else {
-        setUser({ fullName: form.fullName, phone: form.phone, balance: 0, referrersCount: 0, rank: 'Starter', referralCode: 'MILKII' + Math.floor(Math.random()*1000), pendingRewards: 0 });
+        const isRef = !!form.referrerCode;
+        setUser({ fullName: form.fullName, phone: form.phone, balance: 0, validReferralsCount: 0, pendingReferralsCount: 0, rank: 'Starter', referralCode: 'MILKII' + Math.floor(Math.random()*1000), pendingRewards: 0, hasDeposited: false, invitedBy: form.referrerCode || null, baseReferralReward: 200 });
       }
       setPage('dashboard');
     }
@@ -250,8 +321,9 @@ function AuthScreen({ t, lang, TopNav, setUser, setPage, referralParam }) {
     <div className="container" style={{justifyContent: 'center'}}>
       <TopNav />
       
-      <div className="card mt-4" style={{animation: 'fadeIn 0.5s ease-out'}}>
-        <div className="tabs">
+      <div className="auth-card-wrapper">
+        <div className="card mt-4" style={{animation: 'fadeIn 0.5s ease-out'}}>
+          <div className="tabs">
           <div className={`tab ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)}>{t.register}</div>
           <div className={`tab ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)}>{t.login}</div>
         </div>
@@ -294,11 +366,12 @@ function AuthScreen({ t, lang, TopNav, setUser, setPage, referralParam }) {
           </button>
         </form>
       </div>
+      </div>
     </div>
   );
 }
 
-function Dashboard({ t, user }) {
+function Dashboard({ t, user, setPage }) {
   const inviteLink = `${window.location.origin}${window.location.pathname}?ref=${user?.referralCode}`;
   const [copied, setCopied] = useState(false);
 
@@ -311,7 +384,7 @@ function Dashboard({ t, user }) {
   return (
     <div style={{animation: 'fadeIn 0.5s ease-out'}}>
       {/* Motivational Banner */}
-      <div className="banner">
+      <div className="banner" style={{cursor: 'pointer'}} onClick={() => setPage('vip')}>
         <div className="banner-content">
           <div className="banner-icon">🚀</div>
           <div className="banner-text">
@@ -321,8 +394,10 @@ function Dashboard({ t, user }) {
         </div>
       </div>
 
-      {/* User Info & Badges */}
-      <div className="mb-3 d-flex" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+      <div className="dashboard-grid">
+        <div className="dashboard-main">
+          {/* User Info & Badges */}
+          <div className="mb-3 d-flex" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <div>
           <h2 style={{fontSize: '20px'}}>{user?.fullName}</h2>
           <div className="text-secondary" style={{fontSize: '13px'}}>{user?.phone}</div>
@@ -340,8 +415,8 @@ function Dashboard({ t, user }) {
         </div>
         
         <div className="metric-card">
-          <div className="metric-label">{t.referrals}</div>
-          <div className="metric-value text-green">{user?.referrersCount || '0'}</div>
+          <div className="metric-label">{t.validReferrals}</div>
+          <div className="metric-value text-green">{user?.validReferralsCount || '0'}</div>
         </div>
         
         <div className="metric-card">
@@ -350,40 +425,54 @@ function Dashboard({ t, user }) {
         </div>
       </div>
 
-      {/* Invite Action */}
-      <div className="card mb-4" style={{textAlign: 'center', borderColor: 'var(--eth-yellow)'}}>
-        <h3 className="mb-2">{t.inviteBtn}</h3>
-        <p className="text-secondary mb-3" style={{fontSize: '13px'}}>{t.referralLinkGen}</p>
-        <div className="copy-box" style={{marginBottom: '16px', padding: '10px'}}>
-          <div className="number" style={{fontSize: '14px', wordBreak: 'break-all'}}>{inviteLink}</div>
-        </div>
-        <button className="btn btn-vip" onClick={copyLink}>
-          {copied ? t.copySuccess : 'Copy Link'}
-        </button>
-      </div>
-
-      {/* Leaderboard */}
-      <div className="leaderboard mb-4">
-        <div className="lb-header">
-          <h3>{t.leaderboard}</h3>
-          <span className="badge">Live</span>
-        </div>
-        {DUMMY_LEADERBOARD.map((p, i) => (
-          <div className="lb-item" key={i}>
-            <div className={`lb-rank top-${i+1}`}>#{i+1}</div>
-            <div className="lb-user">
-              <div className="lb-avatar">{p.name.charAt(0)}</div>
-              <div className="lb-name">{p.name}</div>
+          {/* Leaderboard */}
+          <div className="leaderboard mb-4">
+            <div className="lb-header">
+              <h3>{t.leaderboard}</h3>
+              <span className="badge">Live</span>
             </div>
-            <div className="lb-amount">{p.amount}</div>
+            {DUMMY_LEADERBOARD.map((p, i) => (
+              <div className="lb-item" key={i}>
+                <div className={`lb-rank top-${i+1}`}>#{i+1}</div>
+                <div className="lb-user">
+                  <div className="lb-avatar">{p.name.charAt(0)}</div>
+                  <div className="lb-name">{p.name}</div>
+                </div>
+                <div className="lb-amount">{p.amount}</div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        <div className="dashboard-sidebar">
+          {/* Invite Action */}
+          <div className="card mb-4" style={{textAlign: 'center', borderColor: 'var(--eth-yellow)'}}>
+            <h3 className="mb-2">{t.inviteBtn}</h3>
+            <p className="text-secondary mb-3" style={{fontSize: '13px'}}>{t.referralLinkGen}</p>
+            <div className="copy-box" style={{marginBottom: '16px', padding: '10px'}}>
+              <div className="number" style={{fontSize: '14px', wordBreak: 'break-all'}}>{inviteLink}</div>
+            </div>
+            <button className="btn btn-vip" onClick={copyLink}>
+              {copied ? t.copySuccess : 'Copy Link'}
+            </button>
+          </div>
+
+          {/* Rules Section */}
+          <div className="card mb-4" style={{background: 'rgba(0, 154, 68, 0.05)', borderColor: 'rgba(0, 154, 68, 0.2)'}}>
+            <h3 className="mb-3 text-green" style={{fontSize: '16px'}}>{t.howItWorks}</h3>
+            <div style={{fontSize: '13px', lineHeight: '1.6', color: 'var(--text-secondary)'}}>
+              <p className="mb-2">{t.rule1}</p>
+              <p className="mb-2">{t.rule2}</p>
+              <p style={{color: 'var(--eth-yellow)', fontWeight: 'bold'}}>{user?.baseReferralReward ? `3. You receive ${user.baseReferralReward} ETB for each valid referral!` : t.rule3}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function DepositScreen({ t, lang, user, setUser, setPage }) {
+function DepositScreen({ t, lang, user, setUser, setPage, pendingUpgrade, setPendingUpgrade }) {
   const [sms, setSms] = useState('');
   const [error, setError] = useState('');
 
@@ -396,6 +485,29 @@ function DepositScreen({ t, lang, user, setUser, setPage }) {
     // Jump to verification scene
     setPage('verification');
     
+    const applyUpgradeLogic = async (balance, depositedAmount) => {
+      let finalBalance = balance + depositedAmount;
+      let finalRank = user.rank;
+      let finalReward = user.baseReferralReward;
+      
+      if (pendingUpgrade && finalBalance >= pendingUpgrade.price) {
+        try {
+          await fetch(`http://localhost:3000/api/upgrade`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: user.phone, tierName: pendingUpgrade.name, price: pendingUpgrade.price, newReward: pendingUpgrade.reward })
+          });
+        } catch(e) {}
+        
+        finalBalance -= pendingUpgrade.price;
+        finalRank = pendingUpgrade.name;
+        finalReward = pendingUpgrade.reward;
+        setPendingUpgrade(null); 
+      }
+      
+      setUser({ ...user, balance: finalBalance, hasDeposited: true, rank: finalRank, baseReferralReward: finalReward });
+    };
+    
     // Simulate backend call behind the scenes
     try {
       const res = await fetch(`http://localhost:3000/api/deposit`, {
@@ -407,7 +519,7 @@ function DepositScreen({ t, lang, user, setUser, setPage }) {
       
       setTimeout(() => {
         if (data.success) {
-          setUser({ ...user, balance: data.balance });
+          applyUpgradeLogic(user.balance, data.amount);
         }
       }, 3500); // Wait for animation
     } catch (err) {
@@ -416,14 +528,14 @@ function DepositScreen({ t, lang, user, setUser, setPage }) {
         const regex = /You have transferred ETB\s+(\d+(\.\d+)?)\s+to ashim shenko \(2519\*\*\*\*6250\)/i;
         const match = sms.match(regex);
         if (match) {
-          setUser({ ...user, balance: user.balance + parseFloat(match[1]) });
+          applyUpgradeLogic(user.balance, parseFloat(match[1]));
         }
       }, 3500);
     }
   };
 
   return (
-    <div style={{animation: 'fadeIn 0.5s ease-out'}}>
+    <div style={{animation: 'fadeIn 0.5s ease-out'}} className="deposit-container">
       <div className="telebirr-logo">
         <div style={{display: 'inline-block', background: '#fff', padding: '10px', borderRadius: '16px'}}>
           <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Telebirr_Logo.png" alt="Telebirr" onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerText = 'TELEBIRR'; e.target.parentElement.style.color = '#00a3e0'; e.target.parentElement.style.fontWeight = 'bold'; }} />
@@ -495,6 +607,81 @@ function VerificationScene({ t, onComplete }) {
       {step === 2 && (
         <div style={{marginTop: '20px', color: 'var(--eth-green)', fontSize: '24px'}}>✓</div>
       )}
+    </div>
+  );
+}
+
+function VipScreen({ t, user, setUser, setPage, setPendingUpgrade }) {
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const plans = [
+    { id: 'silver', name: 'VIP Silver', price: 250, reward: 300, colorClass: 'silver' },
+    { id: 'golden', name: 'VIP Golden', price: 450, reward: 400, colorClass: 'golden' },
+    { id: 'platinum', name: 'VIP Platinum', price: 650, reward: 500, colorClass: 'platinum' },
+    { id: 'diamond', name: 'VIP Diamond', price: 900, reward: 650, colorClass: 'diamond' }
+  ];
+
+  const handleUpgrade = async (plan) => {
+    if (user.balance < plan.price) {
+      setPendingUpgrade(plan);
+      setError(t.insufficientBalance);
+      setTimeout(() => setPage('deposit'), 2000);
+      return;
+    }
+    
+    // Simulate Backend
+    try {
+      const res = await fetch(`http://localhost:3000/api/upgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: user.phone, tierName: plan.name, price: plan.price, newReward: plan.reward })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.user);
+        setSuccess(`${t.upgradeSuccess} ${plan.name}!`);
+        setError('');
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      // Offline mock
+      setUser({ ...user, balance: user.balance - plan.price, rank: plan.name, baseReferralReward: plan.reward });
+      setSuccess(`${t.upgradeSuccess} ${plan.name}!`);
+      setError('');
+    }
+  };
+
+  return (
+    <div className="vip-container" style={{animation: 'fadeIn 0.5s ease-out'}}>
+      <h2 className="mb-4 text-center" style={{fontFamily: 'Outfit', fontWeight: 800, fontSize: '28px'}}>{t.vipPlans}</h2>
+      
+      {error && <div className="alert alert-error">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+
+      <div className="vip-grid">
+        {plans.map(p => (
+          <div key={p.id} className={`vip-card ${p.colorClass}`}>
+            <div className="vip-header">
+              <div className="vip-title">{p.name}</div>
+              <div className="vip-price">{p.price} <span>ETB</span></div>
+            </div>
+            
+            <ul className="vip-benefits">
+              <li>{t.earnPerRef1}<strong>{p.reward}</strong>{t.earnPerRef2}</li>
+              <li>{t.prioritySupport}</li>
+              <li>{t.fastWithdrawal}</li>
+            </ul>
+            
+            {user.rank === p.name ? (
+              <button className="btn btn-outline" disabled>{t.currentPlan}</button>
+            ) : (
+              <button className="btn btn-primary" onClick={() => handleUpgrade(p)}>{t.upgradeBtn}</button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
