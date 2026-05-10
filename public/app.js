@@ -475,6 +475,13 @@ function Dashboard({ t, user, setPage }) {
 function DepositScreen({ t, lang, user, setUser, setPage, pendingUpgrade, setPendingUpgrade }) {
   const [sms, setSms] = useState('');
   const [error, setError] = useState('');
+  const [fileName, setFileName] = useState('');
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFileName(e.target.files[0].name);
+    }
+  };
 
   const handleVerify = async () => {
     if (!sms) {
@@ -490,7 +497,7 @@ function DepositScreen({ t, lang, user, setUser, setPage, pendingUpgrade, setPen
       let finalRank = user.rank;
       let finalReward = user.baseReferralReward;
       
-      if (pendingUpgrade && finalBalance >= pendingUpgrade.price) {
+      if (pendingUpgrade && depositedAmount >= pendingUpgrade.price) {
         try {
           await fetch(`http://localhost:3000/api/upgrade`, {
             method: 'POST',
@@ -549,6 +556,13 @@ function DepositScreen({ t, lang, user, setUser, setPage, pendingUpgrade, setPen
         <p><strong>AM:</strong> በቴሌብር ክፍያውን ይላኩ እና የክፍያውን ስክሪንሾት እና የtransaction መልዕክት ያስገቡ።</p>
       </div>
 
+      {pendingUpgrade && (
+        <div className="alert alert-success" style={{textAlign: 'center', backgroundColor: 'rgba(254, 221, 0, 0.1)', borderColor: 'var(--eth-yellow)', color: 'var(--text-primary)'}}>
+          <h4 style={{color: 'var(--eth-yellow)', marginBottom: '8px', fontFamily: 'Outfit'}}>Upgrading to {pendingUpgrade.name}</h4>
+          Please deposit exactly <strong>{pendingUpgrade.price} ETB</strong> to activate your VIP plan.
+        </div>
+      )}
+
       <div className="card mb-4">
         <h3 className="mb-3 text-center">Payment Details</h3>
         <div className="copy-box">
@@ -556,10 +570,19 @@ function DepositScreen({ t, lang, user, setUser, setPage, pendingUpgrade, setPen
           <button className="copy-btn" onClick={() => navigator.clipboard.writeText("0962186250")}>Copy</button>
         </div>
 
-        <div className="upload-area">
+        <label htmlFor="screenshot-upload" className="upload-area" style={{cursor: 'pointer', display: 'block', textAlign: 'center'}}>
+          <input 
+            type="file" 
+            id="screenshot-upload" 
+            accept="image/*" 
+            style={{display: 'none'}} 
+            onChange={handleFileSelect} 
+          />
           <div className="upload-icon">📷</div>
-          <div style={{fontSize: '14px', color: 'var(--text-secondary)'}}>{t.uploadBtn}</div>
-        </div>
+          <div style={{fontSize: '14px', color: fileName ? 'var(--eth-green)' : 'var(--text-secondary)'}}>
+            {fileName ? `Selected: ${fileName}` : t.uploadBtn}
+          </div>
+        </label>
 
         {error && <div className="alert alert-error">{error}</div>}
 
@@ -622,35 +645,9 @@ function VipScreen({ t, user, setUser, setPage, setPendingUpgrade }) {
     { id: 'diamond', name: 'VIP Diamond', price: 900, reward: 650, colorClass: 'diamond' }
   ];
 
-  const handleUpgrade = async (plan) => {
-    if (user.balance < plan.price) {
-      setPendingUpgrade(plan);
-      setError(t.insufficientBalance);
-      setTimeout(() => setPage('deposit'), 2000);
-      return;
-    }
-    
-    // Simulate Backend
-    try {
-      const res = await fetch(`http://localhost:3000/api/upgrade`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: user.phone, tierName: plan.name, price: plan.price, newReward: plan.reward })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-        setSuccess(`${t.upgradeSuccess} ${plan.name}!`);
-        setError('');
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      // Offline mock
-      setUser({ ...user, balance: user.balance - plan.price, rank: plan.name, baseReferralReward: plan.reward });
-      setSuccess(`${t.upgradeSuccess} ${plan.name}!`);
-      setError('');
-    }
+  const handleUpgrade = (plan) => {
+    setPendingUpgrade(plan);
+    setPage('deposit');
   };
 
   return (
